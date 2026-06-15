@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Paisa — Login</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Nunito:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #faf9f7;
+            --surface: #ffffff;
+            --raised: #f5f3ef;
+            --line: #e8e4de;
+            --ink: #1c1917;
+            --saffron: #e07b39;
+            --sans: 'Nunito', sans-serif;
+            --serif: 'Instrument Serif', serif;
+            --sh: 0 1px 2px rgba(0, 0, 0, .04), 0 3px 8px rgba(0, 0, 0, .04);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .auth-box {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            box-shadow: var(--sh);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            font-family: var(--serif);
+            font-size: 28px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--saffron);
+        }
+
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .fg label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .fg input {
+            height: 40px;
+            padding: 0 12px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            background: var(--raised);
+            color: var(--ink);
+            font-family: var(--sans);
+            outline: none;
+            transition: border .15s;
+        }
+
+        .fg input:focus {
+            border-color: var(--saffron);
+            background: var(--surface);
+        }
+
+        .btn {
+            width: 100%;
+            height: 40px;
+            background: var(--saffron);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background .15s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: #c4622a;
+        }
+
+        .err {
+            color: #dc2626;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 16px;
+            padding: 10px;
+            background: #fef2f2;
+            border-radius: 6px;
+            border: 1px solid #fca5a5;
+            display: none;
+        }
+
+        .links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 13px;
+            color: #78716c;
+        }
+
+        .links a {
+            color: var(--saffron);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-box">
+        <div class="logo">
+            <div class="logo-dot"></div>Paisa
+        </div>
+        <div class="err" id="errBox"></div>
+        <form id="loginForm">
+            <div class="fg">
+                <label>Email</label>
+                <input type="email" id="email" required />
+            </div>
+            <div class="fg">
+                <label>Password</label>
+                <input type="password" id="password" required />
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <div class="links">
+            Don't have an account? <a href="/register.html">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errBox = document.getElementById('errBox');
+            errBox.style.display = 'none';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Login failed');
+                }
+
+                // Save token and redirect
+                localStorage.setItem('paisa_token', data.access_token);
+                window.location.href = '/';
+            } catch (err) {
+                errBox.textContent = err.message;
+                errBox.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>
